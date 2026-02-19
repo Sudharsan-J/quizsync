@@ -1,0 +1,404 @@
+﻿<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>QuizSync</title><link rel="preconnect" href="https://fonts.googleapis.com"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@600;700;800&display=swap" rel="stylesheet"/><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script><script src="https://unpkg.com/react@18/umd/react.production.min.js"></script><script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script><script src="https://unpkg.com/@babel/standalone/babel.min.js"></script><style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#0d1117;--s1:#161b22;--s2:#21262d;--bd:rgba(255,255,255,.08);--b2:rgba(255,255,255,.13);--pink:#f05b7d;--pink2:#d94a6a;--purple:#7c3aed;--green:#3fb950;--red:#f85149;--yellow:#ffd166;--text:#e6edf3;--muted:#8b949e;--ff:'Inter',sans-serif;--ffm:'Space Grotesk',sans-serif;}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--ff);font-size:16px;line-height:1.5;overflow-x:hidden}
+#root{min-height:100vh;display:flex;flex-direction:column}
+.nav{position:sticky;top:0;z-index:100;background:rgba(13,17,23,.92);backdrop-filter:blur(16px);border-bottom:1px solid var(--bd);height:60px;display:flex;align-items:center;padding:0 1.25rem;gap:.75rem;flex-wrap:nowrap;overflow:hidden}
+.brand{display:flex;align-items:center;gap:.4rem;font-family:var(--ffm);font-weight:800;font-size:1.1rem;cursor:pointer;user-select:none;flex-shrink:0}
+.logo-text{background:linear-gradient(135deg,#f05b7d 0%,#9333ea 50%,#3b82f6 100%);background-size:300%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:lg 5s ease infinite}
+@keyframes lg{0%,100%{background-position:0%}50%{background-position:100%}}
+.nav-tabs{display:flex;gap:.2rem;margin-left:auto;flex-shrink:0}
+.nav-tab{display:flex;align-items:center;gap:.35rem;padding:.38rem .75rem;border-radius:10px;font-size:.8rem;font-weight:600;cursor:pointer;border:none;background:none;color:var(--muted);transition:all .15s;white-space:nowrap}
+.nav-tab:hover{color:var(--text);background:rgba(255,255,255,.07)}
+.nav-tab.on{color:var(--text);background:rgba(255,255,255,.1)}
+.rbadge{font-family:var(--ffm);font-weight:800;font-size:.65rem;letter-spacing:.08em;padding:.15rem .5rem;border-radius:6px;background:rgba(240,91,125,.14);color:var(--pink);border:1px solid rgba(240,91,125,.28);flex-shrink:0}
+.page{flex:1;width:100%;max-width:1100px;margin:0 auto;padding:2rem 1.25rem 4rem}
+.page-sm{max-width:480px}.page-md{max-width:720px}
+.hero{min-height:calc(100vh - 60px);display:grid;place-items:center;position:relative;overflow:hidden;padding:3rem 1.25rem}
+.orb{position:absolute;border-radius:50%;filter:blur(90px);opacity:.22;animation:fl 9s ease-in-out infinite;pointer-events:none}
+.o1{width:500px;height:500px;background:#f05b7d;top:-150px;left:-100px}
+.o2{width:400px;height:400px;background:#7c3aed;bottom:-100px;right:-80px;animation-delay:-4s}
+.o3{width:280px;height:280px;background:#00b4d8;top:38%;left:58%;animation-delay:-7s}
+@keyframes fl{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-24px) scale(1.04)}}
+.hero-in{position:relative;z-index:1;max-width:500px;width:100%;text-align:center}
+.hero-pill{display:inline-flex;align-items:center;gap:.4rem;background:rgba(240,91,125,.1);border:1px solid rgba(240,91,125,.22);border-radius:50px;padding:.28rem .85rem;font-size:.73rem;font-weight:700;color:var(--pink);letter-spacing:.06em;margin-bottom:1.4rem}
+.hero-sub{color:var(--muted);font-size:.95rem;line-height:1.65;margin-bottom:2.2rem}
+.glass{background:rgba(22,27,34,.9);backdrop-filter:blur(16px);border:1px solid var(--b2);border-radius:22px;padding:2rem;box-shadow:0 0 60px rgba(240,91,125,.07)}
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:16px;padding:1.5rem}
+.card-sm{padding:1rem}.card-glow{box-shadow:0 0 0 1px rgba(240,91,125,.12),0 8px 40px rgba(0,0,0,.4)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;font-family:var(--ff);font-size:.88rem;font-weight:600;border:none;border-radius:10px;cursor:pointer;padding:.65rem 1.3rem;transition:all .16s;outline:none;white-space:nowrap;flex-shrink:0}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn-pink{background:var(--pink);color:#fff}.btn-pink:hover:not(:disabled){background:var(--pink2);transform:translateY(-1px);box-shadow:0 4px 18px rgba(240,91,125,.4)}
+.btn-success{background:var(--green);color:#fff}.btn-success:hover:not(:disabled){filter:brightness(1.1);transform:translateY(-1px)}
+.btn-ghost{background:rgba(255,255,255,.05);color:var(--text);border:1px solid var(--b2)}.btn-ghost:hover:not(:disabled){background:rgba(255,255,255,.1)}
+.btn-danger{background:rgba(248,81,73,.1);color:var(--red);border:1px solid rgba(248,81,73,.18)}.btn-danger:hover:not(:disabled){background:rgba(248,81,73,.2)}
+.btn-warn{background:rgba(255,209,102,.1);color:var(--yellow);border:1px solid rgba(255,209,102,.2)}.btn-warn:hover:not(:disabled){background:rgba(255,209,102,.2)}
+.btn-lg{font-size:1rem;padding:.82rem 1.8rem;border-radius:12px}.btn-full{width:100%}.btn-icon{padding:.42rem .55rem;border-radius:8px;font-size:.85rem}
+.field{margin-bottom:1rem}
+.lbl{display:block;font-size:.72rem;font-weight:700;color:var(--muted);margin-bottom:.38rem;text-transform:uppercase;letter-spacing:.05em}
+.inp{width:100%;background:var(--s2);border:1.5px solid var(--b2);border-radius:10px;color:var(--text);font-family:var(--ff);font-size:.95rem;padding:.68rem 1rem;outline:none;transition:border .15s}
+.inp:focus{border-color:var(--pink);box-shadow:0 0 0 3px rgba(240,91,125,.12)}.inp::placeholder{color:var(--muted)}
+.alert{padding:.65rem 1rem;border-radius:10px;font-size:.83rem;font-weight:500;margin-bottom:.75rem}
+.aerr{background:rgba(248,81,73,.1);border:1px solid rgba(248,81,73,.18);color:#ff8a84}
+.aok{background:rgba(63,185,80,.1);border:1px solid rgba(63,185,80,.18);color:#7ee8a2}
+.opts{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-top:1rem}
+.opt{display:flex;align-items:center;gap:.85rem;background:rgba(255,255,255,.06);border:2px solid rgba(255,255,255,.1);border-radius:14px;padding:1.1rem 1.1rem;cursor:pointer;transition:all .17s;font-weight:600;font-size:.95rem;color:var(--text);text-align:left;word-break:break-word}
+.opt:hover:not(.locked){background:rgba(240,91,125,.11);border-color:rgba(240,91,125,.38);transform:translateY(-2px);box-shadow:0 6px 22px rgba(240,91,125,.14)}
+.opt.sel{border-color:var(--pink);background:rgba(240,91,125,.12)}
+.opt.correct{border-color:var(--green);background:rgba(63,185,80,.13);color:#85efac}
+.opt.wrong{border-color:var(--red);background:rgba(248,81,73,.1);color:#ffa8a5}
+.opt.locked{cursor:default}
+.chip{width:36px;height:36px;min-width:36px;border-radius:9px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.13);display:flex;align-items:center;justify-content:center;font-family:var(--ffm);font-weight:800;font-size:.85rem;color:#c4b5fd}
+.badge{display:inline-flex;align-items:center;gap:.3rem;font-size:.7rem;font-weight:700;padding:.2rem .55rem;border-radius:50px;white-space:nowrap}
+.bg{background:rgba(63,185,80,.1);color:var(--green);border:1px solid rgba(63,185,80,.18)}
+.bp{background:rgba(240,91,125,.1);color:var(--pink);border:1px solid rgba(240,91,125,.18)}
+.bb{background:rgba(59,130,246,.1);color:#60a5fa;border:1px solid rgba(59,130,246,.18)}
+.by{background:rgba(255,209,102,.1);color:var(--yellow);border:1px solid rgba(255,209,102,.18)}
+.lb-row{display:flex;align-items:center;gap:.75rem;padding:.7rem .85rem;border-radius:12px;margin-bottom:.35rem;background:rgba(255,255,255,.03);border:1px solid transparent;min-width:0}
+.lb-row.mine{background:rgba(240,91,125,.07);border-color:rgba(240,91,125,.18)}
+.lb-name{flex:1;font-weight:600;font-size:.88rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.lb-pts{font-family:var(--ffm);font-weight:800;color:var(--yellow);font-size:.9rem;flex-shrink:0}
+.prog{height:4px;background:var(--bd);border-radius:2px;overflow:hidden;margin-bottom:1.4rem}
+.prog-f{height:100%;background:linear-gradient(90deg,var(--pink),var(--purple));border-radius:2px;transition:width .5s}
+.qcard{background:var(--s1);border:1px solid var(--b2);border-radius:20px;padding:1.75rem 1.75rem 1.5rem;margin-bottom:.9rem;border-left:4px solid var(--pink)}
+.cd-box{text-align:center;margin-top:.9rem;padding:.8rem;background:rgba(240,91,125,.07);border-radius:14px;border:1px solid rgba(240,91,125,.18)}
+.cd-num{font-family:var(--ffm);font-weight:900;font-size:2.8rem;color:var(--pink);line-height:1;animation:pulse 1s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.7;transform:scale(.92)}}
+.spinner{width:30px;height:30px;border:3px solid rgba(240,91,125,.2);border-top-color:var(--pink);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sc{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.7rem;text-align:center;padding:2rem 1rem}
+.icon-circle{width:72px;height:72px;min-width:72px;border-radius:50%;background:rgba(240,91,125,.12);display:flex;align-items:center;justify-content:center;border:1px solid rgba(240,91,125,.22)}
+.pulse-ring{animation:wpp 2s ease-in-out infinite}
+@keyframes wpp{0%,100%{box-shadow:0 0 0 0 rgba(240,91,125,.4)}70%{box-shadow:0 0 0 20px rgba(240,91,125,0)}}
+.admin-grid{display:grid;grid-template-columns:255px 1fr 255px;gap:1rem;align-items:start}
+.fade-in{animation:fi .3s ease}
+@keyframes fi{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.divider{height:1px;background:var(--bd);margin:1rem 0}
+.flex{display:flex}.aic{align-items:center}.jb{justify-content:space-between}.g1{gap:.45rem}.g2{gap:.9rem}
+.mb2{margin-bottom:.9rem}.mb3{margin-bottom:1.4rem}.tc{text-align:center}.muted{color:var(--muted)}
+.rnk-badge{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:30px;border-radius:8px;font-family:var(--ffm);font-weight:900;font-size:.78rem;padding:0 5px;flex-shrink:0}
+.rnk-1{background:rgba(255,209,102,.16);color:#ffd166;border:1px solid rgba(255,209,102,.38)}
+.rnk-2{background:rgba(210,210,210,.1);color:#d4d4d4;border:1px solid rgba(210,210,210,.28)}
+.rnk-3{background:rgba(205,127,50,.12);color:#cd9a60;border:1px solid rgba(205,127,50,.3)}
+.rnk-n{background:rgba(255,255,255,.05);color:var(--muted);border:1px solid var(--bd)}
+.livdot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--red);animation:livp 1.4s ease-in-out infinite;flex-shrink:0}
+@keyframes livp{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(.65)}}
+/* Podium */
+.podium-wrap{min-height:calc(100vh - 60px);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:2rem 1rem;position:relative;overflow:hidden;background:radial-gradient(ellipse at 50% 0%,rgba(240,91,125,.15) 0%,transparent 70%)}
+.podium-title{font-family:var(--ffm);font-weight:900;font-size:clamp(2rem,7vw,4rem);background:linear-gradient(135deg,#ffd166,#f05b7d,#9333ea);background-size:200%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:lg 3s ease infinite,podE .7s cubic-bezier(.34,1.56,.64,1) both;text-align:center;margin-bottom:.3rem}
+.podium-sub{color:var(--muted);font-size:.85rem;margin-bottom:2rem;animation:podE .7s .1s both}
+@keyframes podE{from{opacity:0;transform:translateY(-28px) scale(.85)}to{opacity:1;transform:none}}
+.podium-row{display:flex;align-items:flex-end;justify-content:center;gap:.75rem;margin-bottom:1.75rem;flex-wrap:wrap}
+.podium-col{display:flex;flex-direction:column;align-items:center}
+.p1{animation:riseW .9s .15s cubic-bezier(.34,1.56,.64,1) both}
+.p2{animation:riseW .9s .4s cubic-bezier(.34,1.56,.64,1) both}
+.p3{animation:riseW .9s .65s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes riseW{from{opacity:0;transform:translateY(55px) scale(.7)}to{opacity:1;transform:none}}
+.pod-medal{animation:mB 1.5s 1.2s ease-in-out infinite alternate}
+@keyframes mB{from{transform:translateY(0) rotate(-4deg)}to{transform:translateY(-9px) rotate(4deg)}}
+.pod-card{background:rgba(22,27,34,.96);border:1px solid var(--b2);border-radius:18px;padding:1rem 1.1rem;text-align:center;position:relative;min-width:110px;max-width:160px}
+.pod-card.w1{border-color:rgba(255,209,102,.45);box-shadow:0 0 35px rgba(255,209,102,.2);min-width:140px}
+.pod-card.w2{border-color:rgba(200,200,200,.28)}
+.pod-card.w3{border-color:rgba(180,120,50,.28)}
+.pod-crown{position:absolute;top:-14px;left:50%;transform:translateX(-50%);line-height:1;color:var(--yellow);animation:crF 2s ease-in-out infinite}
+@keyframes crF{0%,100%{transform:translateX(-50%) translateY(0)}50%{transform:translateX(-50%) translateY(-6px)}}
+.pod-name{font-family:var(--ffm);font-weight:800;font-size:.9rem;margin:.35rem 0 .18rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px}
+.pod-realname{font-size:.68rem;color:var(--muted);margin-bottom:.35rem}
+.pod-score{font-family:var(--ffm);font-weight:900;color:var(--yellow)}
+.pod-bar{height:4px;width:50%;margin:.5rem auto 0;border-radius:2px}
+.w1 .pod-bar{background:linear-gradient(90deg,#ffd166,#f05b7d)}.w2 .pod-bar{background:#999}.w3 .pod-bar{background:#b47840}
+.podium-rest{width:100%;max-width:460px;animation:podE .7s 1s both}
+.pub-btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;background:linear-gradient(135deg,var(--pink),var(--purple));color:#fff;border:none;border-radius:13px;padding:.9rem 1.4rem;font-family:var(--ffm);font-weight:800;font-size:.95rem;cursor:pointer;box-shadow:0 0 28px rgba(240,91,125,.38);animation:pbP 2s ease-in-out infinite;transition:transform .15s;width:100%}
+.pub-btn:hover{transform:scale(1.02)}
+@keyframes pbP{0%,100%{box-shadow:0 0 28px rgba(240,91,125,.38)}50%{box-shadow:0 0 50px rgba(147,51,234,.6)}}
+/* inline svg icon */
+.ico{display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+/* Responsive */
+@media(max-width:960px){.admin-grid{grid-template-columns:1fr 1fr}}
+@media(max-width:660px){.admin-grid{grid-template-columns:1fr}.opts{grid-template-columns:1fr}}
+@media(max-width:540px){
+  .podium-row{gap:.4rem}
+  .pod-card{min-width:88px!important;padding:.75rem .55rem}
+  .pod-name{font-size:.78rem;max-width:80px}
+  .pod-score{font-size:.9rem}
+  .podium-title{font-size:1.9rem}
+  .page{padding:1.4rem .85rem 3rem}
+  .qcard{padding:1.25rem 1rem 1.1rem}
+  .opt{padding:.9rem .75rem;font-size:.88rem;gap:.6rem}
+}
+@media(max-width:420px){
+  .nav{padding:0 .75rem;gap:.4rem}
+  .nav-tab{padding:.35rem .45rem;font-size:.75rem}
+  .nav-tab .nl{display:none}
+  .glass{padding:1.4rem}
+  .card{padding:1rem}
+}
+</style></head><body>
+<canvas id="cc" style="position:fixed;top:0;left:0;pointer-events:none;z-index:9999"></canvas>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useEffect,useRef}=React;
+const FB={apiKey:"AIzaSyDG_fvHfRjUPMK0Z5CV6PxEnAUiCVe9gdg",authDomain:"quizsync-symposium.firebaseapp.com",databaseURL:"https://quizsync-symposium-default-rtdb.asia-southeast1.firebasedatabase.app",projectId:"quizsync-symposium",appId:"1:1071606099131:web:cfad25392ce005df31cd9e"};
+if(!firebase.apps.length)firebase.initializeApp(FB);
+const db=firebase.database();
+const ADMIN="godmode";
+const ADJ=['Shadow','Neon','Turbo','Hyper','Cosmic','Phantom','Rogue','Cyber','Thunder','Omega'];
+const NOU=['Viper','Falcon','Titan','Ninja','Dragon','Phoenix','Reaper','Cobra','Storm','Nova'];
+const PFX=['[ZAP]','[ACE]','[GOD]','[MAX]','[PRO]','[ICE]','[REX]','[TOP]','[HIT]','[GG]'];
+const nick=()=>PFX[~~(Math.random()*10)]+' '+ADJ[~~(Math.random()*10)]+' '+NOU[~~(Math.random()*10)];
+function boom(){var c=document.getElementById('cc');if(!c)return;var x=c.getContext('2d');c.width=window.innerWidth;c.height=window.innerHeight;var ps=[];for(var i=0;i<140;i++)ps.push({x:Math.random()*c.width,y:-20,r:Math.random()*6+2,color:'hsl('+(~~(Math.random()*360))+',90%,60%)',v:Math.random()*4+2,vx:(Math.random()-.5)*4});var f=0;function loop(){x.clearRect(0,0,c.width,c.height);ps.forEach(function(p){p.y+=p.v;p.x+=p.vx;x.fillStyle=p.color;x.beginPath();x.arc(p.x,p.y,p.r,0,Math.PI*2);x.fill();});if(++f<110)requestAnimationFrame(loop);else x.clearRect(0,0,c.width,c.height);}loop();}
+var AC;function beep(t){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();var o=AC.createOscillator(),g=AC.createGain();o.connect(g);g.connect(AC.destination);var n=AC.currentTime;if(t==='win'){o.frequency.setValueAtTime(523,n);o.frequency.exponentialRampToValueAtTime(1047,n+.15);g.gain.setValueAtTime(.1,n);g.gain.exponentialRampToValueAtTime(.001,n+.6);}else if(t==='lose'){o.type='sawtooth';o.frequency.setValueAtTime(200,n);o.frequency.linearRampToValueAtTime(80,n+.3);g.gain.setValueAtTime(.08,n);g.gain.linearRampToValueAtTime(0,n+.3);}else{o.frequency.setValueAtTime(440,n);o.frequency.exponentialRampToValueAtTime(880,n+.1);g.gain.setValueAtTime(.07,n);g.gain.linearRampToValueAtTime(0,n+.22);}o.start();o.stop(n+.7);}catch(e){}}
+function useQuiz(room){var [q,setQ]=useState(null);useEffect(function(){if(!room)return;var ref=db.ref('rooms/'+room+'/quiz');ref.on('value',function(s){setQ(s.val()||{status:'waiting',currentQuestionIndex:-1,questionLocked:false,correctAnswerer:null,resultsPublished:false});});return function(){ref.off('value');};},[room]);return q||{status:'waiting',currentQuestionIndex:-1,questionLocked:false,correctAnswerer:null,resultsPublished:false};}
+function useList(room,path){var [list,setList]=useState([]);useEffect(function(){if(!room)return;var ref=db.ref('rooms/'+room+'/'+path);ref.on('value',function(s){var d=s.val();setList(d?Object.keys(d).map(function(k){return Object.assign({id:k},d[k]);}):[]);});return function(){ref.off('value');};},[room,path]);return list;}
+function useQuestions(room){var [qs,setQs]=useState([]);useEffect(function(){if(!room)return;var ref=db.ref('rooms/'+room+'/questions');ref.on('value',function(s){var arr=[];s.forEach(function(c){arr.push(Object.assign({id:c.key},c.val()));});setQs(arr.sort(function(a,b){return (a.order||0)-(b.order||0);}));});return function(){ref.off('value');};},[room]);return qs;}
+/* SVG Icon component */
+var IP={
+  home:function(a){return(<><path {...a} d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline {...a} points="9,22 9,12 15,12 15,22"/></>);},
+  play:function(a){return(<><rect {...a} x="2" y="6" width="20" height="12" rx="2" ry="2"/><line {...a} x1="6" y1="12" x2="10" y2="12"/><line {...a} x1="8" y1="10" x2="8" y2="14"/><line {...a} x1="15" y1="11.5" x2="15.02" y2="11.5" strokeWidth="3" strokeLinecap="round"/><line {...a} x1="18" y1="11.5" x2="18.02" y2="11.5" strokeWidth="3" strokeLinecap="round"/></>);},
+  trophy:function(a){return(<><polyline {...a} points="6,9 6,2 18,2 18,9"/><path {...a} d="M6 9a6 6 0 0 0 12 0"/><line {...a} x1="12" y1="15" x2="12" y2="22"/><line {...a} x1="8" y1="22" x2="16" y2="22"/><path {...a} d="M6 9H3a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1h3"/><path {...a} d="M18 9h3a1 1 0 0 0 1-1V6a1 1 0 0 0-1-1h-3"/></>);},
+  cog:function(a){return(<><circle {...a} cx="12" cy="12" r="3"/><path {...a} d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></>);},
+  bolt:function(a){return(<polygon {...a} fill="currentColor" stroke="none" points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>);},
+  zap:function(a){return(<polygon {...a} fill="currentColor" stroke="none" points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>);},
+  star:function(a){return(<polygon {...a} points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>);},
+  clock:function(a){return(<><circle {...a} cx="12" cy="12" r="10"/><polyline {...a} points="12,6 12,12 16,14"/></>);},
+  check:function(a){return(<polyline {...a} points="20,6 9,17 4,12"/>);},
+  xmark:function(a){return(<><line {...a} x1="18" y1="6" x2="6" y2="18"/><line {...a} x1="6" y1="6" x2="18" y2="18"/></>);},
+  user:function(a){return(<><path {...a} d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle {...a} cx="12" cy="7" r="4"/></>);},
+  users:function(a){return(<><path {...a} d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle {...a} cx="9" cy="7" r="4"/><path {...a} d="M23 21v-2a4 4 0 0 0-3-3.87"/><path {...a} d="M16 3.13a4 4 0 0 1 0 7.75"/></>);},
+  lock:function(a){return(<><rect {...a} x="3" y="11" width="18" height="11" rx="2" ry="2"/><path {...a} d="M7 11V7a5 5 0 0 1 10 0v4"/></>);},
+  award:function(a){return(<><circle {...a} cx="12" cy="8" r="7"/><polyline {...a} points="8.21,13.89 7,23 12,20 17,23 15.79,13.88"/></>);},
+  refresh:function(a){return(<><polyline {...a} points="23,4 23,10 17,10"/><polyline {...a} points="1,20 1,14 7,14"/><path {...a} d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></>);},
+  power:function(a){return(<><path {...a} d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line {...a} x1="12" y1="2" x2="12" y2="12"/></>);},
+  search:function(a){return(<><circle {...a} cx="11" cy="11" r="8"/><line {...a} x1="21" y1="21" x2="16.65" y2="16.65"/></>);},
+  chart:function(a){return(<><line {...a} x1="18" y1="20" x2="18" y2="10"/><line {...a} x1="12" y1="20" x2="12" y2="4"/><line {...a} x1="6" y1="20" x2="6" y2="14"/></>);},
+  crown:function(a){return(<path {...a} fill="currentColor" stroke="none" d="M2 19h20l-3-12-5 7-2-3-2 3-5-7-3 12zm0 0h20v2H2z"/>);},
+  sparkle:function(a){return(<><path {...a} d="M12 3v1M12 20v1M4.22 4.22l.7.7M19.07 19.07l.71.71M3 12h1M20 12h1M4.22 19.78l.7-.7M19.07 4.93l.71-.71"/><circle {...a} cx="12" cy="12" r="4"/></>);},
+};
+function Ico({n,s=18,c,sw=1.75}){
+  var a={fill:'none',stroke:c||'currentColor',strokeWidth:sw,strokeLinecap:'round',strokeLinejoin:'round'};
+  var fn=IP[n];if(!fn)return null;
+  return <svg className="ico" width={s} height={s} viewBox="0 0 24 24">{fn(a)}</svg>;
+}
+function RnkBadge({i}){
+  var cls=['rnk-1','rnk-2','rnk-3'][i]||'rnk-n';
+  return <span className={'rnk-badge '+cls}>#{i+1}</span>;
+}
+function PodMedal({rank,big}){
+  var sz=big?'3.6rem':'2.8rem';
+  var fs=big?'1.45rem':'1.1rem';
+  var bg={1:'linear-gradient(135deg,#ffd166,#f5a428)',2:'linear-gradient(135deg,#d4d4d4,#a8a8a8)',3:'linear-gradient(135deg,#cd9a60,#b07030)'}[rank];
+  var clr={1:'#1a0800',2:'#111',3:'#160800'}[rank];
+  var sh={1:'0 4px 18px rgba(255,209,102,.4)',2:'none',3:'none'}[rank];
+  return <div style={{width:sz,height:sz,minWidth:sz,borderRadius:'50%',background:bg,display:'flex',alignItems:'center',justifyContent:'center',fontFamily:"'Space Grotesk',sans-serif",fontWeight:900,color:clr,fontSize:fs,boxShadow:sh}}>{rank}</div>;
+}
+function Nav({page,setPage,room,quizActive,hasPlayer}){
+  var tabs=[{id:'home',icon:'home',lbl:'Home'},{id:'play',icon:'play',lbl:'Play'},{id:'board',icon:'trophy',lbl:'Ranks'},{id:'host',icon:'cog',lbl:'Host'}];
+  function go(id){if(quizActive&&hasPlayer&&id!=='play'){if(!confirm('Leave the active quiz?'))return;}setPage(id);}
+  var shown=quizActive&&hasPlayer?tabs.filter(function(t){return t.id==='play';}):tabs;
+  return(<nav className="nav"><div className="brand" onClick={function(){go('home');}}><Ico n="bolt" s={20} c="#f05b7d"/><span className="logo-text">QUIZ<span>SYNC</span></span>{room&&<span className="rbadge">{room}</span>}</div><div className="nav-tabs">{shown.map(function(t){return(<button key={t.id} className={'nav-tab'+(page===t.id?' on':'')} onClick={function(){go(t.id);}}><Ico n={t.icon} s={15}/><span className="nl">{t.lbl}</span></button>);})}</div></nav>);
+}
+function Home({setPage,room,joinRoom,leaveRoom}){
+  var [code,setCode]=useState('');var [err,setErr]=useState('');var [busy,setBusy]=useState(false);
+  async function submit(e){e.preventDefault();var r=code.toUpperCase().trim();if(r.length<3){setErr('Enter a valid room code');return;}setBusy(true);setErr('');try{var snap=await db.ref('rooms/'+r+'/quiz').get();if(!snap.exists()){setErr('Room not found. Ask your host!');setBusy(false);return;}joinRoom(r);setPage('play');}catch(ex){setErr('Connection error. Try again.');setBusy(false);}}
+  if(room)return(<div className="hero fade-in"><div className="orb o1"/><div className="orb o2"/><div className="orb o3"/><div className="hero-in"><div className="hero-pill"><Ico n="bolt" s={13} c="var(--pink)"/> Live Room Active</div><h1 className="logo-text" style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:'clamp(3rem,10vw,5.5rem)',lineHeight:1,marginBottom:'1.2rem',display:'block'}}>QUIZ<span>SYNC</span></h1><div className="glass tc"><p className="muted" style={{fontSize:'.78rem',textTransform:'uppercase',letterSpacing:'.1em',fontWeight:700,marginBottom:'.5rem'}}>You are in room</p><div style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:900,fontSize:'clamp(2rem,7vw,3rem)',letterSpacing:'.22em',color:'var(--pink)',margin:'.4rem 0 1.4rem'}}>{room}</div><div style={{display:'flex',flexDirection:'column',gap:'.65rem'}}><button className="btn btn-pink btn-lg btn-full" onClick={function(){setPage('play');}}>Play Quiz</button><button className="btn btn-ghost btn-full" style={{color:'var(--muted)',fontSize:'.82rem'}} onClick={leaveRoom}>Leave Room</button></div></div></div></div>);
+  return(<div className="hero fade-in"><div className="orb o1"/><div className="orb o2"/><div className="orb o3"/><div className="hero-in"><div className="hero-pill"><Ico n="sparkle" s={13} c="var(--pink)"/> Live Quiz Platform</div><h1 className="logo-text" style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:'clamp(3.2rem,12vw,6rem)',lineHeight:1,marginBottom:'1rem',display:'block'}}>QUIZ<span>SYNC</span></h1><p className="hero-sub">First correct answer wins the points.</p><div className="glass"><p className="lbl" style={{marginBottom:'1rem',textAlign:'center'}}>Enter Room Code</p><form onSubmit={submit}><input className="inp" style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:'1.8rem',letterSpacing:'.2em',textAlign:'center',textTransform:'uppercase',padding:'.95rem',marginBottom:'1rem'}} value={code} onChange={function(e){setCode(e.target.value.toUpperCase());setErr('');}} placeholder="A1B2C3" maxLength={10} autoFocus/>{err&&<div className="alert aerr">{err}</div>}<button className="btn btn-pink btn-lg btn-full" disabled={busy}>{busy?'Joining...':'Join Room'}</button></form><div className="divider"/><p className="tc muted" style={{fontSize:'.82rem'}}>Are you the host? <button className="btn btn-ghost" style={{fontSize:'.82rem',padding:'.2rem .6rem'}} onClick={function(){setPage('host');}}>Create a Room</button></p></div></div></div>);
+}
+function Play({room,player,setPlayer}){
+  var quiz=useQuiz(room);var questions=useQuestions(room);var allP=useList(room,'players').sort(function(a,b){return (b.score||0)-(a.score||0);});
+  var [me,setMe]=useState(null);var [name,setName]=useState('');var [joining,setJoining]=useState(false);var [selected,setSelected]=useState(null);var [joinErr,setJoinErr]=useState('');var [countdown,setCountdown]=useState(null);
+  var prevQ=useRef(null);var cdRef=useRef(null);
+  useEffect(function(){if(!player||!player.id||!room)return;var ref=db.ref('rooms/'+room+'/players/'+player.id);ref.on('value',function(s){var v=s.val();if(v)setMe(v);});return function(){ref.off('value');};},[player&&player.id,room]);
+  useEffect(function(){if(prevQ.current!==quiz.currentQuestionIndex){setSelected(null);prevQ.current=quiz.currentQuestionIndex;}},[quiz.currentQuestionIndex]);
+  var iWon=!!(quiz.correctAnswerer&&quiz.correctAnswerer.id&&player&&player.id&&quiz.correctAnswerer.id===player.id);
+  useEffect(function(){
+    if(!quiz.questionLocked){setCountdown(null);if(cdRef.current){clearInterval(cdRef.current);cdRef.current=null;}return;}
+    if(iWon){boom();beep('win');}else if(selected!==null){beep('lose');}
+    setCountdown(3);if(cdRef.current)clearInterval(cdRef.current);
+    cdRef.current=setInterval(function(){setCountdown(function(c){if(c<=1){clearInterval(cdRef.current);cdRef.current=null;return null;}return c-1;});},1000);
+    return function(){if(cdRef.current){clearInterval(cdRef.current);cdRef.current=null;}};
+  },[quiz.questionLocked]);
+  if(!room)return(<div className="sc"><div className="icon-circle"><Ico n="play" s={32} c="var(--pink)"/></div><p className="muted" style={{marginTop:'.5rem'}}>Join a room from Home first</p></div>);
+  if(quiz.status==='waiting'&&!player)return(
+    <div className="page page-sm fade-in" style={{paddingTop:'4rem'}}>
+      <div className="tc mb3"><div className="icon-circle" style={{margin:'0 auto .75rem'}}><Ico n="user" s={30} c="var(--pink)"/></div><h2 style={{marginBottom:'.4rem'}}>Join as Player</h2><p className="muted" style={{fontSize:'.88rem'}}>Room: <strong style={{color:'var(--pink)'}}>{room}</strong></p></div>
+      <div className="card card-glow"><form onSubmit={async function(e){e.preventDefault();if(!name.trim()){setJoinErr('Enter your name');return;}setJoining(true);setJoinErr('');try{var id='p_'+Math.random().toString(36).substr(2,9);var data={name:name.trim(),nickname:nick(),score:0,locked:false,joinedAt:Date.now()};await db.ref('rooms/'+room+'/players/'+id).set(data);var p=Object.assign({id:id},data);localStorage.setItem('qs_player',JSON.stringify(p));setPlayer(p);setJoining(false);}catch(err){setJoinErr('Failed to join.');setJoining(false);}}}><div className="field"><label className="lbl">Your Name</label><input className="inp" value={name} onChange={function(e){setName(e.target.value);}} placeholder="Enter your name..." maxLength={30} autoFocus/></div>{joinErr&&<div className="alert aerr">{joinErr}</div>}<button className="btn btn-pink btn-lg btn-full" disabled={joining}>{joining?'Joining...':'Join Quiz'}</button></form></div>
+    </div>
+  );
+  if(quiz.status==='waiting')return(<div className="sc fade-in"><div className="icon-circle pulse-ring"><Ico n="clock" s={32} c="var(--pink)"/></div><h2 style={{marginTop:'1rem'}}>Waiting to Start</h2><p className="muted">Room: <strong style={{color:'var(--pink)'}}>{room}</strong></p><p className="muted" style={{fontSize:'.85rem'}}>{allP.length} player{allP.length!==1?'s':''} joined</p>{me&&<span className="badge bg">{me.nickname}</span>}</div>);
+  if(quiz.status==='ended')return(<div className="sc fade-in"><div className="icon-circle"><Ico n="award" s={32} c="var(--pink)"/></div><h2 style={{margin:'.75rem 0 .3rem'}}>Quiz Over!</h2><p className="muted">Check the Ranks tab</p><div className="card" style={{minWidth:Math.min(300,window.innerWidth-40)+'px',marginTop:'1rem',width:'100%',maxWidth:360}}>{allP.slice(0,5).map(function(p,i){return(<div key={p.id} className={'lb-row'+(p.id===(player&&player.id)?' mine':'')}><RnkBadge i={i}/><div style={{flex:1,minWidth:0}}><div className="lb-name">{p.nickname}</div><div style={{fontSize:'.7rem',color:'var(--muted)'}}>{p.name}</div></div><span className="lb-pts">{p.score||0} pts</span></div>);})}</div></div>);
+  var qi=quiz.currentQuestionIndex;var currentQ=questions[qi];
+  if(!currentQ)return(<div className="sc"><div className="spinner"/></div>);
+  var locked=!!(me&&me.locked)||!!quiz.questionLocked;
+  async function answer(idx){
+    if(locked||selected!==null)return;beep('click');setSelected(idx);
+    if(idx===currentQ.correctIndex){var snap=await db.ref('rooms/'+room+'/quiz/questionLocked').get();if(!snap.val()){var u={};u['rooms/'+room+'/quiz/questionLocked']=true;u['rooms/'+room+'/quiz/correctAnswerer']={id:player.id,nickname:me.nickname};u['rooms/'+room+'/players/'+player.id+'/score']=(me.score||0)+10;u['rooms/'+room+'/players/'+player.id+'/locked']=true;db.ref().update(u);}}
+    else{await db.ref('rooms/'+room+'/players/'+player.id+'/locked').set(true);var psnap=await db.ref('rooms/'+room+'/players').get();if(psnap.val()){var vals=Object.values(psnap.val());if(vals.length>0&&vals.every(function(v){return v.locked;})){var ql=await db.ref('rooms/'+room+'/quiz/questionLocked').get();if(!ql.val())db.ref('rooms/'+room+'/quiz/questionLocked').set(true);}}}
+  }
+  var labels=['A','B','C','D'];var pct=((qi+1)/questions.length*100)+'%';
+  return(
+    <div className="page page-md fade-in" style={{paddingTop:'1.25rem'}}>
+      <div className="flex aic jb mb2" style={{flexWrap:'wrap',gap:'.4rem'}}>
+        <div className="flex aic g1" style={{flexWrap:'wrap',gap:'.3rem'}}><span className="badge bp"><Ico n="user" s={11}/> {(me&&me.nickname)||(player&&player.nickname)||'You'}</span><span className="badge by"><Ico n="star" s={11}/> {(me&&me.score)||0} pts</span></div>
+        <span className="muted" style={{fontSize:'.8rem',fontFamily:"'Space Grotesk',sans-serif",flexShrink:0}}>Q{qi+1}/{questions.length}</span>
+      </div>
+      <div className="prog"><div className="prog-f" style={{width:pct}}/></div>
+      <div className="qcard"><p className="muted" style={{fontSize:'.72rem',fontWeight:700,letterSpacing:'.08em',marginBottom:'.55rem',textTransform:'uppercase'}}>Question {qi+1}</p><h2 style={{fontSize:'clamp(1.05rem,3vw,1.45rem)',fontWeight:700,lineHeight:1.4,wordBreak:'break-word'}}>{currentQ.text}</h2></div>
+      <div className="opts">{currentQ.options.map(function(o,i){var cls='opt';if(quiz.questionLocked){if(i===currentQ.correctIndex)cls+=' correct';else if(i===selected)cls+=' wrong';}else if(i===selected)cls+=' sel';if(locked)cls+=' locked';return(<div key={i} className={cls} onClick={function(){answer(i);}}><div className="chip">{labels[i]}</div><span style={{wordBreak:'break-word'}}>{o}</span></div>);})}</div>
+      {quiz.questionLocked&&<div className={'alert '+(iWon?'aok':'aerr')} style={{marginTop:'.85rem',display:'flex',alignItems:'center',gap:'.4rem'}}>{iWon?<><Ico n="check" s={14} c="var(--green)"/> Correct! +10 pts</>:(quiz.correctAnswerer?<><Ico n="zap" s={14} c="var(--yellow)"/> {quiz.correctAnswerer.nickname} got it first!</>:<><Ico n="xmark" s={14} c="var(--red)"/> Wrong — better luck next one!</>)}</div>}
+      {quiz.questionLocked&&countdown!==null&&<div className="cd-box"><p className="muted" style={{fontSize:'.74rem',marginBottom:'.2rem',textTransform:'uppercase',letterSpacing:'.06em',fontWeight:700}}>Next in</p><div className="cd-num">{countdown}</div></div>}
+      <div className="card" style={{marginTop:'1rem'}}><p className="muted" style={{fontSize:'.7rem',fontWeight:700,letterSpacing:'.08em',marginBottom:'.55rem',textTransform:'uppercase',display:'flex',alignItems:'center',gap:'.3rem'}}><Ico n="chart" s={12}/> Live Rankings</p>{allP.slice(0,5).map(function(p,i){return(<div key={p.id} className={'lb-row'+(p.id===(player&&player.id)?' mine':'')}><RnkBadge i={i}/><div style={{flex:1,minWidth:0}}><span className="lb-name">{p.nickname}</span>{p.id===(player&&player.id)&&<span style={{color:'var(--muted)',fontSize:'.68rem'}}> (you)</span>}</div><span className="lb-pts">{p.score||0}</span></div>);})}</div>
+    </div>
+  );
+}
+function Board({room,player}){
+  var [viewRoom,setViewRoom]=useState(room||'');
+  var [codeInput,setCodeInput]=useState('');
+  var [fetchErr,setFetchErr]=useState('');
+  var quiz=useQuiz(viewRoom);
+  var players=useList(viewRoom,'players').sort(function(a,b){return (b.score||0)-(a.score||0);});
+  var published=!!(quiz&&quiz.resultsPublished);
+  useEffect(function(){if(room&&!viewRoom)setViewRoom(room);},[room]);
+  async function loadRoom(e){e.preventDefault();var r=codeInput.toUpperCase().trim();if(!r)return;setFetchErr('');try{var snap=await db.ref('rooms/'+r+'/quiz').get();if(snap.exists()){setViewRoom(r);setCodeInput('');}else setFetchErr('Room not found. Check the code!');}catch(ex){setFetchErr('Connection error.');}}
+  if(!viewRoom)return(
+    <div className="page page-sm fade-in" style={{paddingTop:'4rem'}}>
+      <div className="tc mb3"><div className="icon-circle" style={{margin:'0 auto .75rem'}}><Ico n="trophy" s={30} c="var(--pink)"/></div><h2 style={{marginBottom:'.4rem'}}>View Leaderboard</h2><p className="muted" style={{fontSize:'.88rem'}}>Enter a room code to see live rankings</p></div>
+      <div className="card card-glow"><form onSubmit={loadRoom}><div className="field"><label className="lbl">Room Code</label><input className="inp" style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:'1.6rem',letterSpacing:'.18em',textAlign:'center',textTransform:'uppercase',padding:'.9rem'}} value={codeInput} onChange={function(e){setCodeInput(e.target.value.toUpperCase());setFetchErr('');}} placeholder="A1B2C3" maxLength={10} autoFocus/></div>{fetchErr&&<div className="alert aerr">{fetchErr}</div>}<button className="btn btn-pink btn-lg btn-full"><Ico n="search" s={15}/> View Rankings</button></form></div>
+    </div>
+  );
+  var isEnded=quiz.status==='ended';var isActive=quiz.status==='active';
+  if(published){
+    var w=players[0],ru=players[1],th=players[2];
+    setTimeout(function(){boom();setTimeout(boom,800);setTimeout(boom,1700);},300);
+    return(
+      <div className="podium-wrap">
+        <div className="orb o1" style={{opacity:.12}}/><div className="orb o2" style={{opacity:.09}}/>
+        <div className="podium-title">WINNER!</div>
+        <p className="podium-sub">Room <strong style={{color:'var(--pink)'}}>{viewRoom}</strong> — Final Standings</p>
+        <button className="btn btn-ghost" style={{fontSize:'.75rem',marginBottom:'1.2rem',color:'var(--muted)'}} onClick={function(){setViewRoom('');}}><Ico n="search" s={12}/> Change room</button>
+        <div className="podium-row">
+          {ru&&<div className="podium-col p2"><div className="pod-medal"><PodMedal rank={2}/></div><div className="pod-card w2"><div className="pod-name">{ru.nickname}</div><div className="pod-realname">{ru.name}</div><div className="pod-score">{ru.score||0} pts</div><div className="pod-bar"/></div></div>}
+          {w&&<div className="podium-col p1"><div className="pod-crown"><Ico n="crown" s={22} c="var(--yellow)"/></div><div className="pod-medal" style={{marginTop:'1.5rem'}}><PodMedal rank={1} big/></div><div className="pod-card w1"><div className="pod-name" style={{fontSize:'1rem'}}>{w.nickname}</div><div className="pod-realname">{w.name}</div><div className="pod-score" style={{fontSize:'1.5rem'}}>{w.score||0} pts</div><div className="pod-bar"/></div></div>}
+          {th&&<div className="podium-col p3"><div className="pod-medal"><PodMedal rank={3}/></div><div className="pod-card w3"><div className="pod-name">{th.nickname}</div><div className="pod-realname">{th.name}</div><div className="pod-score">{th.score||0} pts</div><div className="pod-bar"/></div></div>}
+        </div>
+        {players.length>3&&<div className="podium-rest"><p className="muted" style={{fontSize:'.7rem',fontWeight:700,letterSpacing:'.08em',textTransform:'uppercase',marginBottom:'.55rem',textAlign:'center'}}>Full Standings</p><div className="card">{players.slice(3).map(function(p,i){return(<div key={p.id} className={'lb-row'+(p.id===(player&&player.id)?' mine':'')}><RnkBadge i={i+3}/><div style={{flex:1,minWidth:0}}><div className="lb-name">{p.nickname}</div><div style={{fontSize:'.7rem',color:'var(--muted)'}}>{p.name}</div></div><span className="lb-pts">{p.score||0} pts</span></div>);})}</div></div>}
+      </div>
+    );
+  }
+  if(isEnded)return(<div className="sc fade-in"><div className="icon-circle"><Ico n="award" s={30} c="var(--pink)"/></div><h2 style={{margin:'.75rem 0 .35rem'}}>Quiz Complete!</h2><p className="muted" style={{maxWidth:280,textAlign:'center'}}>The host will announce results soon. Stand by!</p><span className="badge bp" style={{marginTop:'.6rem'}}><Ico n="clock" s={11}/> Awaiting announcement</span><button className="btn btn-ghost" style={{marginTop:'1rem',fontSize:'.78rem',color:'var(--muted)'}} onClick={function(){setViewRoom('');}}><Ico n="search" s={12}/> Change room</button></div>);
+  return(
+    <div className="page page-md fade-in" style={{paddingTop:'1.75rem'}}>
+      <div className="flex aic jb mb3" style={{flexWrap:'wrap',gap:'.5rem'}}>
+        <div className="tc" style={{flex:1}}>
+          <div className="flex aic g1" style={{justifyContent:'center',marginBottom:'.3rem'}}>{isActive?<><span className="livdot"/><span style={{fontSize:'.8rem',fontWeight:700,color:'var(--red)'}}>Live</span></>:<Ico n="trophy" s={18} c="var(--yellow)"/>}<h2 style={{marginLeft:'.4rem'}}>{isActive?'Live Leaderboard':'Scoreboard'}</h2></div>
+          <div className="flex aic g1" style={{justifyContent:'center',flexWrap:'wrap'}}><span className="muted" style={{fontSize:'.8rem'}}>Room: <strong style={{color:'var(--pink)'}}>{viewRoom}</strong></span><button className="btn btn-ghost btn-icon" style={{fontSize:'.72rem',padding:'.2rem .55rem',color:'var(--muted)'}} onClick={function(){setViewRoom('');}}><Ico n="search" s={11}/> Change</button></div>
+        </div>
+      </div>
+      <div className="card">{players.length===0&&<p className="muted tc" style={{fontSize:'.9rem',padding:'1rem 0'}}>No players yet</p>}{players.map(function(p,i){return(<div key={p.id} className={'lb-row'+(p.id===(player&&player.id)?' mine':'')}><RnkBadge i={i}/><div style={{flex:1,minWidth:0}}><div className="lb-name">{p.nickname}</div><div style={{fontSize:'.72rem',color:'var(--muted)'}}>{p.name}</div></div><span className="lb-pts">{p.score||0} pts</span></div>);})}</div>
+      {quiz.status==='waiting'&&<p className="tc muted" style={{fontSize:'.82rem',marginTop:'.75rem',display:'flex',alignItems:'center',justifyContent:'center',gap:'.35rem'}}><Ico n="clock" s={13}/> Waiting for quiz to start</p>}
+    </div>
+  );
+}
+function Host({room,setRoom}){
+  var [auth,setAuth]=useState(sessionStorage.getItem('qs_auth')==='1');
+  var [pwd,setPwd]=useState('');var [roomInput,setRoomInput]=useState('');
+  var quiz=useQuiz(room);var questions=useQuestions(room);
+  var players=useList(room,'players').sort(function(a,b){return (b.score||0)-(a.score||0);});
+  var [newQ,setNewQ]=useState({text:'',options:['','','',''],correct:0});
+  var [qErr,setQErr]=useState('');var [formKey,setFormKey]=useState(0);
+  var [autoCD,setAutoCD]=useState(null);var autoRef=useRef(null);var R=room;
+  useEffect(function(){
+    if(!quiz.questionLocked||!R){setAutoCD(null);if(autoRef.current){clearTimeout(autoRef.current);autoRef.current=null;}return;}
+    setAutoCD(3);var t=setInterval(function(){setAutoCD(function(c){if(c<=1){clearInterval(t);return null;}return c-1;});},1000);
+    autoRef.current=setTimeout(async function(){clearInterval(t);var next=quiz.currentQuestionIndex+1;if(next>=questions.length){db.ref('rooms/'+R+'/quiz').update({status:'ended'});return;}var u={};u['rooms/'+R+'/quiz/currentQuestionIndex']=next;u['rooms/'+R+'/quiz/questionLocked']=false;u['rooms/'+R+'/quiz/correctAnswerer']=null;var snap=await db.ref('rooms/'+R+'/players').get();if(snap.val())Object.keys(snap.val()).forEach(function(k){u['rooms/'+R+'/players/'+k+'/locked']=false;});db.ref().update(u);},3000);
+    return function(){if(autoRef.current){clearTimeout(autoRef.current);autoRef.current=null;}setAutoCD(null);};
+  },[quiz.questionLocked]);
+  if(!auth)return(<div className="page page-sm fade-in" style={{paddingTop:'5rem'}}><div className="card card-glow tc"><div className="icon-circle" style={{margin:'0 auto .75rem'}}><Ico n="lock" s={28} c="var(--pink)"/></div><h2 style={{marginBottom:'1.2rem'}}>Host Login</h2><form onSubmit={function(e){e.preventDefault();if(pwd===ADMIN){sessionStorage.setItem('qs_auth','1');setAuth(true);}else alert('Wrong password');}}><div className="field"><input className="inp" type="password" value={pwd} onChange={function(e){setPwd(e.target.value);}} autoFocus placeholder="Password"/></div><button className="btn btn-pink btn-full btn-lg">Login</button></form></div></div>);
+  if(!room)return(<div className="page page-sm fade-in" style={{paddingTop:'4rem'}}><div className="tc mb3"><h2 style={{marginBottom:'.35rem'}}>Choose Room</h2><p className="muted" style={{fontSize:'.88rem'}}>Create a new room or open existing</p></div><div className="card card-glow" style={{marginBottom:'1rem'}}><button className="btn btn-pink btn-lg btn-full" onClick={async function(){var chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';var code='';for(var i=0;i<6;i++)code+=chars[~~(Math.random()*chars.length)];await db.ref('rooms/'+code+'/quiz').set({status:'waiting',currentQuestionIndex:-1,questionLocked:false,correctAnswerer:null,resultsPublished:false});setRoom(code);}}>+ Create New Room</button></div><div className="card"><p className="lbl" style={{marginBottom:'.75rem'}}>Open existing room</p><div className="flex g1"><input className="inp" value={roomInput} onChange={function(e){setRoomInput(e.target.value.toUpperCase());}} placeholder="Room code..." maxLength={10} style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:700,letterSpacing:'.1em'}}/><button className="btn btn-ghost" onClick={async function(){if(!roomInput.trim())return;var snap=await db.ref('rooms/'+roomInput+'/quiz').get();if(snap.exists())setRoom(roomInput);else alert('Room not found');}}>Open</button></div></div><div className="divider"/><button className="btn btn-ghost btn-full" style={{color:'var(--muted)',fontSize:'.82rem'}} onClick={function(){sessionStorage.removeItem('qs_auth');setAuth(false);}}><Ico n="power" s={13}/> Logout</button></div>);
+  var isW=quiz.status==='waiting',isA=quiz.status==='active',isE=quiz.status==='ended';
+  var sColor=isA?'var(--green)':isE?'var(--muted)':'var(--yellow)';
+  function startQuiz(){if(!questions.length){alert('Add at least one question first!');return;}db.ref('rooms/'+R+'/quiz').update({status:'active',currentQuestionIndex:0,questionLocked:false,correctAnswerer:null,resultsPublished:false});}
+  function endQuiz(){if(confirm('End the quiz now?'))db.ref('rooms/'+R+'/quiz').update({status:'ended'});}
+  function publishResults(){boom();setTimeout(boom,700);db.ref('rooms/'+R+'/quiz/resultsPublished').set(true);}
+  async function resetAll(){if(!confirm('Reset all scores and restart?'))return;await db.ref('rooms/'+R+'/quiz').set({status:'waiting',currentQuestionIndex:-1,questionLocked:false,correctAnswerer:null,resultsPublished:false});var snap=await db.ref('rooms/'+R+'/players').get();if(snap.val()){var u={};Object.keys(snap.val()).forEach(function(k){u['rooms/'+R+'/players/'+k+'/score']=0;u['rooms/'+R+'/players/'+k+'/locked']=false;});await db.ref().update(u);}}
+  function addQ(e){e.preventDefault();setQErr('');if(!newQ.text.trim()){setQErr('Enter a question');return;}if(newQ.options.some(function(o){return !o.trim();})){setQErr('Fill all 4 options');return;}db.ref('rooms/'+R+'/questions').push({text:newQ.text.trim(),options:newQ.options.slice(),correctIndex:newQ.correct,order:Date.now()});setNewQ({text:'',options:['','','',''],correct:0});setFormKey(function(k){return k+1;});}
+  return(
+    <div className="page fade-in" style={{paddingTop:'1.25rem'}}>
+      <div className="flex aic jb mb2" style={{flexWrap:'wrap',gap:'.4rem'}}>
+        <div className="flex aic g1" style={{flexWrap:'wrap',gap:'.3rem'}}>
+          <span style={{fontFamily:"'Space Grotesk',sans-serif",fontWeight:800,fontSize:'.88rem',color:'var(--pink)',background:'rgba(240,91,125,.1)',border:'1px solid rgba(240,91,125,.22)',borderRadius:7,padding:'.2rem .6rem'}}>{R}</span>
+          <span className="badge" style={{border:'1px solid var(--b2)',color:sColor}}>{quiz.status.toUpperCase()}</span>
+          <span className="badge bb"><Ico n="users" s={10}/> {players.length}</span>
+          <span className="badge by">{questions.length} Qs</span>
+        </div>
+        <div className="flex g1">
+          {isA&&autoCD!==null&&<span className="badge bp">Next in {autoCD}s</span>}
+          <button className="btn btn-ghost btn-icon" onClick={function(){setRoom(null);}} title="Rooms"><Ico n="home" s={14}/></button>
+          <button className="btn btn-danger btn-icon" onClick={function(){sessionStorage.removeItem('qs_auth');setAuth(false);}} title="Logout"><Ico n="power" s={14}/></button>
+        </div>
+      </div>
+      <div className="admin-grid">
+        <div style={{display:'flex',flexDirection:'column',gap:'.85rem'}}>
+          <div className="card card-sm">
+            <p className="lbl" style={{marginBottom:'.8rem'}}>Controls</p>
+            <div style={{display:'flex',flexDirection:'column',gap:'.45rem'}}>
+              {isW&&<button className="btn btn-success btn-full" onClick={startQuiz}><Ico n="play" s={14}/> Start Quiz ({questions.length} Qs)</button>}
+              {isA&&quiz.questionLocked&&autoCD!==null&&<div className="cd-box" style={{padding:'.55rem'}}><p className="muted" style={{fontSize:'.7rem',marginBottom:'.15rem'}}>Auto-advancing in</p><div className="cd-num" style={{fontSize:'1.8rem'}}>{autoCD}</div></div>}
+              {isA&&<button className="btn btn-danger btn-full" onClick={endQuiz}><Ico n="power" s={14}/> End Quiz</button>}
+              {isE&&!quiz.resultsPublished&&<button className="pub-btn" onClick={publishResults}><Ico n="award" s={16}/> Publish Results</button>}
+              {isE&&quiz.resultsPublished&&<div className="badge bg" style={{justifyContent:'center',padding:'.55rem',borderRadius:9,fontSize:'.82rem'}}><Ico n="check" s={12}/> Published!</div>}
+              <button className="btn btn-warn btn-full" onClick={resetAll}><Ico n="refresh" s={14}/> Reset All</button>
+            </div>
+          </div>
+          <div className="card card-sm">
+            <p className="lbl" style={{marginBottom:'.7rem'}}><Ico n="users" s={11}/> Players ({players.length})</p>
+            <div style={{maxHeight:240,overflowY:'auto'}}>
+              {!players.length&&<p className="muted" style={{fontSize:'.85rem'}}>No players yet</p>}
+              {players.map(function(p,i){return(<div key={p.id} className="flex aic jb" style={{padding:'.4rem 0',borderBottom:'1px solid var(--bd)'}}><div style={{minWidth:0,flex:1}}><div style={{fontSize:'.83rem',fontWeight:600,overflow:'hidden',textOverflow:'ellipsis',whiteSpace:'nowrap'}}>{p.nickname}</div><div style={{fontSize:'.7rem',color:'var(--muted)'}}>{p.name} · {p.score||0} pts</div></div><button className="btn btn-danger btn-icon" style={{marginLeft:'.4rem'}} onClick={function(){if(confirm('Kick?'))db.ref('rooms/'+R+'/players/'+p.id).remove();}}>×</button></div>);})}
+            </div>
+          </div>
+        </div>
+        <div style={{display:'flex',flexDirection:'column',gap:'.85rem'}}>
+          <div className="card card-sm">
+            <p className="lbl" style={{marginBottom:'.9rem'}}>Add Question</p>
+            <form key={formKey} onSubmit={addQ} autoComplete="off">
+              <div className="field"><label className="lbl">Question</label><input className="inp" value={newQ.text} onChange={function(e){setNewQ(Object.assign({},newQ,{text:e.target.value}));}} placeholder="Type your question..."/></div>
+              <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:'.55rem',marginBottom:'.9rem'}}>
+                {newQ.options.map(function(o,i){return(<div key={i}><label className="lbl" style={{display:'flex',alignItems:'center',gap:'.3rem',cursor:'pointer',marginBottom:'.25rem'}}><input type="radio" checked={newQ.correct===i} onChange={function(){setNewQ(Object.assign({},newQ,{correct:i}));}}/>{String.fromCharCode(65+i)}{newQ.correct===i?' ✓':''}</label><input className="inp" style={{fontSize:'.83rem',padding:'.48rem .75rem'}} value={o} onChange={function(ev){var ops=newQ.options.slice();ops[i]=ev.target.value;setNewQ(Object.assign({},newQ,{options:ops}));}} placeholder={'Option '+String.fromCharCode(65+i)}/></div>);})}
+              </div>
+              {qErr&&<div className="alert aerr">{qErr}</div>}
+              <button type="submit" className="btn btn-pink btn-full">+ Add Question</button>
+            </form>
+          </div>
+          <div className="card card-sm">
+            <p className="lbl" style={{marginBottom:'.7rem'}}>Questions ({questions.length})</p>
+            {!questions.length&&<p className="muted" style={{fontSize:'.85rem'}}>No questions yet</p>}
+            {questions.map(function(q,i){return(<div key={q.id} style={{padding:'.55rem .7rem',borderRadius:9,background:'var(--s2)',border:'1px solid var(--bd)',marginBottom:'.45rem'}}><div className="flex aic jb"><span className="lbl" style={{fontSize:'.68rem',margin:0}}>Q{i+1}</span><button className="btn btn-danger btn-icon" style={{padding:'.2rem .4rem',fontSize:'.75rem'}} onClick={function(){if(confirm('Delete?'))db.ref('rooms/'+R+'/questions/'+q.id).remove();}}>×</button></div><p style={{fontSize:'.83rem',fontWeight:600,margin:'.28rem 0 .38rem',lineHeight:1.4,wordBreak:'break-word'}}>{q.text}</p><div style={{display:'flex',flexWrap:'wrap',gap:'.25rem'}}>{q.options.map(function(o,j){return(<span key={j} style={{fontSize:'.7rem',padding:'.12rem .4rem',borderRadius:5,background:j===q.correctIndex?'rgba(63,185,80,.15)':'rgba(255,255,255,.05)',color:j===q.correctIndex?'var(--green)':'var(--muted)',border:'1px solid '+(j===q.correctIndex?'rgba(63,185,80,.25)':'var(--bd)'),wordBreak:'break-word'}}>{String.fromCharCode(65+j)}: {o}</span>);})}</div></div>);})}
+          </div>
+        </div>
+        <div style={{display:'flex',flexDirection:'column',gap:'.85rem'}}>
+          {isA&&<div className="card card-sm"><p className="lbl" style={{marginBottom:'.45rem'}}>Current Q</p><p style={{fontSize:'.88rem',fontWeight:600,lineHeight:1.4,marginBottom:'.45rem',wordBreak:'break-word'}}>{questions[quiz.currentQuestionIndex]&&questions[quiz.currentQuestionIndex].text}</p><span className="badge bb">Q{quiz.currentQuestionIndex+1}/{questions.length}</span>{quiz.questionLocked&&quiz.correctAnswerer&&<div className="alert aok" style={{marginTop:'.65rem',fontSize:'.78rem',display:'flex',alignItems:'center',gap:'.35rem'}}><Ico n="check" s={12}/> {quiz.correctAnswerer.nickname}</div>}{quiz.questionLocked&&!quiz.correctAnswerer&&<div className="alert aerr" style={{marginTop:'.65rem',fontSize:'.78rem',display:'flex',alignItems:'center',gap:'.35rem'}}><Ico n="xmark" s={12}/> No one got it</div>}</div>}
+          <div className="card card-sm">
+            <p className="lbl" style={{marginBottom:'.7rem'}}><Ico n="chart" s={11}/> Live Scores</p>
+            <div style={{maxHeight:280,overflowY:'auto'}}>
+              {!players.length&&<p className="muted" style={{fontSize:'.85rem'}}>No players</p>}
+              {players.map(function(p,i){return(<div key={p.id} className="lb-row"><RnkBadge i={i}/><div style={{flex:1,minWidth:0}}><div className="lb-name">{p.nickname}</div><div style={{fontSize:'.68rem',color:'var(--muted)'}}>{p.name}</div></div><span className="lb-pts">{p.score||0}</span></div>);})}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+function App(){
+  var [page,setPage]=useState('home');
+  var [room,setRoom]=useState(function(){try{return localStorage.getItem('qs_room')||null;}catch(e){return null;}});
+  var [player,setPlayer]=useState(function(){try{var p=localStorage.getItem('qs_player');return p?JSON.parse(p):null;}catch(e){return null;}});
+  var quiz=useQuiz(room);
+  var quizActive=quiz.status==='active';
+  function joinRoom(r){setRoom(r);localStorage.setItem('qs_room',r);}
+  function leaveRoom(){setRoom(null);setPlayer(null);localStorage.removeItem('qs_room');localStorage.removeItem('qs_player');setPage('home');}
+  useEffect(function(){if(player&&room)localStorage.setItem('qs_player',JSON.stringify(player));},[player,room]);
+  return(<React.Fragment><Nav page={page} setPage={setPage} room={room} quizActive={quizActive} hasPlayer={!!player}/><main style={{flex:1,display:'flex',flexDirection:'column'}}>{page==='home'&&<Home setPage={setPage} room={room} joinRoom={joinRoom} leaveRoom={leaveRoom}/>}{page==='play'&&<Play room={room} player={player} setPlayer={setPlayer}/>}{page==='board'&&<Board room={room} player={player}/>}{page==='host'&&<Host room={room} setRoom={function(r){setRoom(r);if(r)localStorage.setItem('qs_room',r);}}/>}</main></React.Fragment>);
+}
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script></body></html>
